@@ -29,7 +29,10 @@ layout = [
     [sg.Submit(), sg.Cancel()]
 ]
 window = sg.Window('WoWS IGN to Player ID', layout)
-event, values = window.read()
+while True:
+    event, values = window.read()
+    if event in (None, 'Close Window'): # if user closes window or clicks cancel
+        break
 window.close()
 player_name = values[0]
 
