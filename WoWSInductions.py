@@ -28,7 +28,7 @@ layout = [
     [sg.Text('IGN', size =(15, 1)), sg.InputText()],
     [sg.Submit(), sg.Cancel()]
 ]
-window = sg.Window('Simple data entry window', layout)
+window = sg.Window('WoWS IGN to Player ID', layout)
 event, values = window.read()
 window.close()
 player_name = values[0]
