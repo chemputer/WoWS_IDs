@@ -4,8 +4,6 @@ from wowspy import Wows
 import pyperclip
 # this is simply config.py file that it's drawing the API key from so that I don't have to make that public
 from config import APIKEY
-# allows for caching of API lookups
-from functools import lru_cache
 
 
 
@@ -34,25 +32,17 @@ layout = [
 # title of the first window
 window = sg.Window('WoWS IGN to Player ID', layout)
 
-# properly handles closing the window upon submission or clicking "x".
-while True:
-    event, values = window.read()
-    if event in (None, 'Close Window'): # if user closes window or clicks cancel
-        break
-    elif event == 'Submit':
-        window.close()
-    elif event == 'Cancel':
-        window.close()
-
+event, values = window.read()
+window.close()
 # the input is the player's IGN as a string
 player_name = values[0]
 
-@lru_cache(maxsize=None)
-def get_player_id(region: str, player_name: str) -> int:
+
+def get_player_id(region, player_name):
     """
     Given a player name, returns the account ID of the player in the specified region.
 
-    :param region: str, the region of the player
+    :param region: the region of the player
     :param player_name: str, the name of the player
     :return: int, the account ID of the player
     """
@@ -68,13 +58,13 @@ def get_player_id(region: str, player_name: str) -> int:
 
 
   
-@lru_cache(maxsize=None)
-def get_player_name(region: str, player_id: int) -> str:
+
+def get_player_name(region, player_id):
     """
     Given a region and a player ID, this function retrieves the player's nickname and returns it as a string.
 
     Args:
-        region (str): A string representing the region of the player.
+        region: A string representing the region of the player.
         player_id (int): An integer representing the ID of the player.
 
     Returns:
@@ -84,7 +74,7 @@ def get_player_name(region: str, player_id: int) -> str:
     data = my_api.player_personal_data(region, player_id, fields='nickname')
 
     # Extract the player's nickname from the response
-    player_name = data['data'][str(player_id)]['nickname']
+    player_name = data['data'][f'{player_id}']['nickname']
 
     # Return the player's nickname
     return player_name
