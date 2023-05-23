@@ -4,7 +4,8 @@ from wowspy import Wows
 import pyperclip
 # this is simply config.py file that it's drawing the API key from so that I don't have to make that public
 from config import APIKEY
-
+# allows for caching of API lookups
+from functools import lru_cache
 
 
 
@@ -28,15 +29,26 @@ sg.theme('Default1')
 layout = [
     [sg.Text('Please enter the IGN of the recruit you want to search for.')],
     [sg.Text('IGN', size =(15, 1)), sg.InputText()],
-    [sg.Submit('Submit'), sg.Cancel('Cancel')]
+    [sg.Submit(), sg.Cancel()]
 ]
 # title of the first window
 window = sg.Window('WoWS IGN to Player ID', layout)
-event, values = window.read()
-window.close()
+
+# properly handles closing the window upon submission or clicking "x".
+while True:
+    event, values = window.read()
+    if event in (None, 'Close Window'): # if user closes window or clicks cancel
+        break
+    elif event == 'Submit':
+        window.close()
+    elif event == 'Cancel':
+        window.close()
+
+# the input is the player's IGN as a string
 player_name = values[0]
 
-def get_player_id(region, player_name):
+@lru_cache(maxsize=None)
+def get_player_id(region: str, player_name: str) -> int:
     """
     Given a player name, returns the account ID of the player in the specified region.
 
@@ -56,7 +68,8 @@ def get_player_id(region, player_name):
 
 
   
-def get_player_name(region, player_id):
+@lru_cache(maxsize=None)
+def get_player_name(region: str, player_id: int) -> str:
     """
     Given a region and a player ID, this function retrieves the player's nickname and returns it as a string.
 
@@ -71,7 +84,7 @@ def get_player_name(region, player_id):
     data = my_api.player_personal_data(region, player_id, fields='nickname')
 
     # Extract the player's nickname from the response
-    player_name = data['data'][f'{player_id}']['nickname']
+    player_name = data['data'][str(player_id)]['nickname']
 
     # Return the player's nickname
     return player_name
